@@ -1,6 +1,7 @@
 import os
 import logging
 import requests
+from json import dumps
 from io import BytesIO
 from minio import Minio
 from typing import Any, Dict, List
@@ -10,6 +11,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 OPENSKY_BASE_URL = "https://opensky-network.org/api"
+
 
 def put_on_bucket(bucket_name: str, object_name: str, data: str) -> bool:
     """
@@ -66,35 +68,40 @@ def put_on_bucket(bucket_name: str, object_name: str, data: str) -> bool:
         return True
 
     except Exception as e:
-        raise Exception(f"Error in put_on_bucker. Upload failed for {object_name}: {str(e)}")
+        raise Exception(
+            f"Error in put_on_bucker. Upload failed for {object_name}: {str(e)}"
+        )
 
-def fetch_opensky_data(bbox=None) -> Dict[str, Any]:
+
+def fetch_opensky_data(bbox=None):
     try:
-        params = {"lamin": bbox[0], "lomin": bbox[1], "lamax": bbox[2], "lomax": bbox[3]} if bbox else {}
-        
+        params = (
+            {"lamin": bbox[0], "lomin": bbox[1], "lamax": bbox[2], "lomax": bbox[3]}
+            if bbox
+            else {}
+        )
+
         URL = f"{OPENSKY_BASE_URL}/states/all"
         response = requests.get(URL, params=params, timeout=10)
         response.raise_for_status()
-        
+
         timestamp = datetime.now().isoformat()
-        return {
-            "timestamp": timestamp,
-            "data": response.json()["states"]
-        }
+        return dumps({"timestamp": timestamp, "data": response.json()["states"]})
     except requests.RequestException as e:
         raise Exception(f"Error fetching OpenSky data: {e}")
 
-def fetch_airlines_data() -> List[Dict[str, Any]]:
+
+def fetch_airlines_data():
     try:
         URL = "https://raw.githubusercontent.com/asdhamidi/Airlines/refs/heads/master/airlines.json"
         response = requests.get(URL)
         response.raise_for_status()
 
-        return response.json()
-    
+        return dumps(response.json())
     except requests.RequestException as e:
         raise Exception(f"Error fetching airlines data: {e}")
-    
+
+
 def fetch_airports_data() -> bytes:
     try:
         URL = "https://davidmegginson.github.io/ourairports-data/airports.csv"
@@ -102,29 +109,30 @@ def fetch_airports_data() -> bytes:
         response.raise_for_status()
 
         return response.content
-    
+
     except requests.RequestException as e:
         raise Exception(f"Error fetching airports data: {e}")
 
-def fetch_cities_data() -> List[Dict[str, Any]]:
+
+def fetch_cities_data():
     try:
         URL = "https://raw.githubusercontent.com/dr5hn/countries-states-cities-database/refs/heads/master/json/cities.json"
         response = requests.get(URL)
         response.raise_for_status()
 
-        return response.json()
-    
+        return dumps(response.json())
+
     except requests.RequestException as e:
         raise Exception(f"Error fetching cities data: {e}")
 
-def fetch_weather_data(lat: float, lon: float) -> Dict[str, Any]:
+
+def fetch_weather_data(lat: float, lon: float):
     api_key = os.getenv("OPENWEATHER_API_KEY")
     try:
         URL = f"https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={api_key}"
         response = requests.get(URL)
         response.raise_for_status()
-        return response.json()
-    
+        return dumps(response.json())
+
     except requests.RequestException as e:
         raise Exception(f"Error fetching weather data: {e}")
-    
