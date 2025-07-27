@@ -5,7 +5,13 @@ from airflow.exceptions import AirflowException
 from airflow.hooks.postgres_hook import PostgresHook
 
 def insert_dq_results(hook: PostgresHook, dq_results: List[Dict[str, Any]]) -> None:
-    """Insert DQ results into the tracking table"""
+    """
+    Inserts data quality (DQ) check results into the admin.admin_dq_results table.
+
+    Args:
+        hook (PostgresHook): Airflow Postgres hook for DB connection.
+        dq_results (List[Dict[str, Any]]): List of DQ result dicts to insert.
+    """
     if not dq_results:
         return
 
@@ -14,6 +20,7 @@ def insert_dq_results(hook: PostgresHook, dq_results: List[Dict[str, Any]]) -> N
         (id, result, execution_date, comments)
         VALUES
     """
+    # Build values for bulk insert
     for r in dq_results:
         insert_query += f"({r['id']}, '{r['result']}', '{r['execution_date']}', '{r['comments']}'),\n"
 
@@ -26,8 +33,14 @@ def insert_dq_results(hook: PostgresHook, dq_results: List[Dict[str, Any]]) -> N
 
 def run_dq_checks(table_schema: str, table_name: str) -> None:
     """
-    Executes all DQ checks defined for a specific table
-    Returns list of results ready for insertion into ADMIN_DQ_RESULTS
+    Executes all active DQ checks for a given table and records results.
+
+    Args:
+        table_schema (str): Schema name of the target table.
+        table_name (str): Table name to run checks on.
+
+    Raises:
+        AirflowException: If any DQ check fails or DB errors occur.
     """
     logging.info(f"Executing DQ checks for table {table_schema}.{table_name}")
     pg_hook = PostgresHook(postgres_conn_id='hisaab_postgres')
@@ -50,13 +63,14 @@ def run_dq_checks(table_schema: str, table_name: str) -> None:
         for check in checks:
             check_id, check_type, column, range_check, lower, upper = check
 
+            # Dispatch to appropriate check function
             if range_check:
                 result = _execute_range_check(pg_hook, table_schema, table_name, column, lower, upper)
-            elif check_type=="NULL":
+            elif check_type == "NULL":
                 result = _execute_null_check(pg_hook, table_schema, table_name, column)
-            elif check_type=="UNIQUE":
+            elif check_type == "UNIQUE":
                 result = _execute_unique_check(pg_hook, table_schema, table_name, column)
-            elif check_type=="DUPLICATE":
+            elif check_type == "DUPLICATE":
                 result = _execute_duplicate_check(pg_hook, table_schema, table_name, column)
             else:
                 result = "UNSUPPORTED_CHECK_TYPE"
@@ -82,7 +96,20 @@ def run_dq_checks(table_schema: str, table_name: str) -> None:
 
 def _execute_range_check(hook: PostgresHook, schema: str, table: str, column: str,
                         lower: float, upper: float) -> str:
-    """Check if column values are within specified range"""
+    """
+    Checks if column values are within the specified numeric range.
+
+    Args:
+        hook (PostgresHook): DB connection hook.
+        schema (str): Table schema.
+        table (str): Table name.
+        column (str): Column to check.
+        lower (float): Lower bound.
+        upper (float): Upper bound.
+
+    Returns:
+        str: "SUCCESS" if all values are in range, else violation message.
+    """
     query = f"""
         SELECT COUNT(*)
         FROM {schema}.{table}
@@ -92,7 +119,18 @@ def _execute_range_check(hook: PostgresHook, schema: str, table: str, column: st
     return f"RANGE_VIOLATION ({invalid_count} records)" if invalid_count > 0 else "SUCCESS"
 
 def _execute_null_check(hook: PostgresHook, schema: str, table: str, column: str) -> str:
-    """Check for null values in non-nullable columns"""
+    """
+    Checks for NULL values in the specified column.
+
+    Args:
+        hook (PostgresHook): DB connection hook.
+        schema (str): Table schema.
+        table (str): Table name.
+        column (str): Column to check.
+
+    Returns:
+        str: "SUCCESS" if no NULLs, else violation message.
+    """
     query = f"""
         SELECT COUNT(*)
         FROM {schema}.{table}
@@ -102,7 +140,18 @@ def _execute_null_check(hook: PostgresHook, schema: str, table: str, column: str
     return f"NULL_VIOLATION ({null_count} records)" if null_count > 0 else "SUCCESS"
 
 def _execute_unique_check(hook: PostgresHook, schema: str, table: str, column: str) -> str:
-    """Check if column values are unique"""
+    """
+    Checks if all values in the column are unique.
+
+    Args:
+        hook (PostgresHook): DB connection hook.
+        schema (str): Table schema.
+        table (str): Table name.
+        column (str): Column to check.
+
+    Returns:
+        str: "SUCCESS" if all values are unique, else violation message.
+    """
     query = f"""
         SELECT COUNT(*) - COUNT(DISTINCT {column})
         FROM {schema}.{table}
@@ -111,7 +160,18 @@ def _execute_unique_check(hook: PostgresHook, schema: str, table: str, column: s
     return f"UNIQUENESS_VIOLATION ({duplicate_count} duplicates)" if duplicate_count > 0 else "SUCCESS"
 
 def _execute_duplicate_check(hook: PostgresHook, schema: str, table: str, column: str) -> str:
-    """Check for duplicate rows based on specified column"""
+    """
+    Checks for duplicate rows based on the specified column.
+
+    Args:
+        hook (PostgresHook): DB connection hook.
+        schema (str): Table schema.
+        table (str): Table name.
+        column (str): Column to check.
+
+    Returns:
+        str: "SUCCESS" if no duplicates, else violation message.
+    """
     query = f"""
         SELECT COUNT(*)
         FROM (
