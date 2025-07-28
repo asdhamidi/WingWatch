@@ -43,7 +43,7 @@ def run_dq_checks(table_schema: str, table_name: str) -> None:
         AirflowException: If any DQ check fails or DB errors occur.
     """
     logging.info(f"Executing DQ checks for table {table_schema}.{table_name}")
-    pg_hook = PostgresHook(postgres_conn_id='hisaab_postgres')
+    pg_hook = PostgresHook(postgres_conn_id='postgres_conn')
     execution_date = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S.%f%z")[:-2]
     results = []
 

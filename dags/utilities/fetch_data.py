@@ -1,6 +1,7 @@
 import os
 import csv
 import requests
+import logging
 from json import dumps
 from io import StringIO
 from datetime import datetime
@@ -32,14 +33,41 @@ def fetch_opensky_data(bbox: List[float]=[]) -> str:
             if bbox
             else {}
         )
-
+        logging.info("Fetching OpenSky data...")
         URL = f"{OPENSKY_BASE_URL}/states/all"
         response = requests.get(URL, params=params, timeout=10)
         response.raise_for_status()
+        logging.info("OpenSky data fetched successfully.")
+        logging.info("Processing OpenSky data...")
+        STATE_HEADERS = [
+            "icao24",
+            "callsign",
+            "origin_country",
+            "time_position",
+            "last_contact",
+            "longitude",
+            "latitude",
+            "baro_altitude",
+            "on_ground",
+            "velocity",
+            "true_track",
+            "vertical_rate",
+            "sensors",
+            "geo_altitude",
+            "squawk",
+            "spi",
+            "position_source",
+            "category"
+        ]
 
-        timestamp = datetime.now().isoformat()
-        # Only return the 'states' field from response
-        return dumps({"timestamp": timestamp, "data": response.json()["states"]})
+        res_data = response.json()["states"]
+
+        data = []
+        for state in res_data:
+            data.append(dict(zip(STATE_HEADERS, state)))
+        logging.info("OpenSky data processed successfully.")
+
+        return dumps(data)
     except requests.RequestException as e:
         raise Exception(f"Error fetching OpenSky data: {e}")
 
@@ -54,11 +82,21 @@ def fetch_airlines_data() -> str:
         Exception: If request fails.
     """
     try:
-        URL = "https://raw.githubusercontent.com/asdhamidi/Airlines/refs/heads/master/airlines.json"
+        logging.info("Fetching airlines data...")
+        URL = "https://lsv.ens-paris-saclay.fr/~sirangel/teaching/dataset/airlines.txt"
         response = requests.get(URL)
         response.raise_for_status()
+        logging.info("Airlines data fetched successfully.")
 
-        return dumps(response.json())
+        logging.info("Processing airlines data...")
+        data = "airline_name,iata_code,icao_code,callsign,country\n" + response.text.replace(";",",")
+        data = data.replace("\\N", "")
+        csv_file = StringIO(data)
+        reader = csv.DictReader(csv_file)
+        airlines_list = list(reader)
+        logging.info("Airlines data processed successfully.")
+
+        return dumps(airlines_list)
     except requests.RequestException as e:
         raise Exception(f"Error fetching airlines data: {e}")
 
@@ -73,15 +111,19 @@ def fetch_airports_data() -> str:
         Exception: If request fails.
     """
     try:
+        logging.info("Fetching airports data...")
         URL = "https://davidmegginson.github.io/ourairports-data/airports.csv"
         response = requests.get(URL)
         response.raise_for_status()
         csv_content = response.text
+        logging.info("Airports data fetched successfully.")
 
         # Convert CSV to list of dicts
+        logging.info("Converting CSV to list of dicts...")
         csv_file = StringIO(csv_content)
         reader = csv.DictReader(csv_file)
         airports_list = list(reader)
+        logging.info("CSV converted to list of dicts.")
 
         # Convert to JSON string
         return dumps(airports_list)
@@ -99,9 +141,11 @@ def fetch_cities_data() -> str:
         Exception: If request fails.
     """
     try:
+        logging.info("Fetching cities data...")
         URL = "https://raw.githubusercontent.com/dr5hn/countries-states-cities-database/refs/heads/master/json/cities.json"
         response = requests.get(URL)
         response.raise_for_status()
+        logging.info("Cities data fetched successfully.")
 
         return dumps(response.json())
 

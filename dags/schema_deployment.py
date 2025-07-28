@@ -25,7 +25,7 @@ default_args = {
 
 # Define the DAG for schema deployment
 with DAG(
-    "hisaab_postgres_deployment",
+    "postgres_ddl_deployment",
     default_args=default_args,
     start_date=datetime(2024, 1, 1),
     tags=["postgres"],
@@ -33,33 +33,32 @@ with DAG(
 ) as dag:
     deploy_admin_schema = PostgresOperator.partial(
         task_id="deploy_admin_schema",
-        postgres_conn_id="hisaab_postgres",
-        # Extracts object name from SQL for mapping
-        map_index_template="{{(task.sql[task.sql.find('EXISTS')+7:task.sql.find(';')])}}",
+        postgres_conn_id="postgres_conn",
+        map_index_template="{{(task.sql[task.sql.find('CREATE TABLE')+12:task.sql.find('(')])}}",
     ).expand(sql=get_ddl_files("admin"))
 
     deploy_admin_dml_schema = PostgresOperator.partial(
         task_id="deploy_admin_dml_schema",
-        postgres_conn_id="hisaab_postgres",
+        postgres_conn_id="postgres_conn",
         map_index_template="{{(task.sql[task.sql.find('TRUNCATE TABLE')+14:task.sql.find(';')])}}",
     ).expand(sql=get_ddl_files("admin_dml"))
 
     deploy_bronze_schema = PostgresOperator.partial(
         task_id="deploy_bronze_schema",
-        postgres_conn_id="hisaab_postgres",
-        map_index_template="{{(task.sql[task.sql.find('EXISTS')+7:task.sql.find(';')])}}",
+        postgres_conn_id="postgres_conn",
+        map_index_template="{{(task.sql[task.sql.find('CREATE TABLE')+12:task.sql.find('(')])}}",
     ).expand(sql=get_ddl_files("bronze"))
 
     deploy_silver_schema = PostgresOperator.partial(
         task_id="deploy_silver_schema",
-        postgres_conn_id="hisaab_postgres",
-        map_index_template="{{(task.sql[task.sql.find('EXISTS')+7:task.sql.find(';')])}}",
+        postgres_conn_id="postgres_conn",
+        map_index_template="{{(task.sql[task.sql.find('CREATE TABLE')+12:task.sql.find('(')])}}",
     ).expand(sql=get_ddl_files("silver"))
 
     deploy_gold_schema = PostgresOperator.partial(
         task_id="deploy_gold_schema",
-        postgres_conn_id="hisaab_postgres",
-        map_index_template="{{(task.sql[task.sql.find('EXISTS')+7:task.sql.find(';')])}}",
+        postgres_conn_id="postgres_conn",
+        map_index_template="{{(task.sql[task.sql.find('CREATE TABLE')+12:task.sql.find('(')])}}",
     ).expand(sql=get_ddl_files("gold"))
 
 deploy_admin_schema >> deploy_admin_dml_schema >> [deploy_bronze_schema, deploy_silver_schema, deploy_gold_schema]
