@@ -9,7 +9,7 @@ default_args = {
 }
 
 with DAG(
-    "raw_data_ingestion",
+    "raw_minio_data_ingestion",
     default_args=default_args,
     start_date=datetime(2025, 1, 1),
     schedule="@hourly",
@@ -19,7 +19,6 @@ with DAG(
     start_batch=PythonOperator(
         task_id="start_batch",
         python_callable=start_batch_run,
-        op_kwargs={"batch_name": "raw_data_ingestion"},
     )
 
     ingest_airlines_data = PythonOperator(
@@ -34,7 +33,7 @@ with DAG(
     ingest_airports_data = PythonOperator(
         task_id="ingest_airports_data",
         python_callable=ingest_data,
-        op_kwargs={"data_type": "airports.csv"},
+        op_kwargs={"data_type": "airports.json"},
         pre_execute=start_job_run,
         on_success_callback=end_job_run,
         on_failure_callback=end_job_run
@@ -61,7 +60,6 @@ with DAG(
     end_batch = PythonOperator(
         task_id="end_batch",
         python_callable=end_batch_run,
-        op_kwargs={"batch_name": "raw_data_ingestion"},
         trigger_rule="all_done"
     )
 

@@ -1,9 +1,11 @@
 import os
+import csv
 import requests
 from json import dumps
-from typing import Any, Dict, List
+from io import StringIO
 from datetime import datetime
 from dotenv import load_dotenv
+from typing import Any, Dict, List
 
 # Load environment variables from .env file
 load_dotenv()
@@ -60,12 +62,12 @@ def fetch_airlines_data() -> str:
     except requests.RequestException as e:
         raise Exception(f"Error fetching airlines data: {e}")
 
-def fetch_airports_data() -> bytes:
+def fetch_airports_data() -> str:
     """
-    Fetches airport data in CSV format.
+    Fetches airport data in CSV format and returns it as a JSON string.
 
     Returns:
-        bytes: Raw CSV content.
+        str: JSON string of airports data.
 
     Raises:
         Exception: If request fails.
@@ -74,9 +76,15 @@ def fetch_airports_data() -> bytes:
         URL = "https://davidmegginson.github.io/ourairports-data/airports.csv"
         response = requests.get(URL)
         response.raise_for_status()
+        csv_content = response.text
 
-        return response.text()
+        # Convert CSV to list of dicts
+        csv_file = StringIO(csv_content)
+        reader = csv.DictReader(csv_file)
+        airports_list = list(reader)
 
+        # Convert to JSON string
+        return dumps(airports_list)
     except requests.RequestException as e:
         raise Exception(f"Error fetching airports data: {e}")
 

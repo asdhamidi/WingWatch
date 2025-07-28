@@ -21,7 +21,7 @@ def ingest_data(data_type: str):
     """
     data_map = {
         "airlines.json": fetch_airlines_data,
-        "airports.csv": fetch_airports_data,
+        "airports.json": fetch_airports_data,
         "cities.json": fetch_cities_data,
         "opensky.json": fetch_opensky_data,
         "weather.json": fetch_weather_data,
@@ -54,17 +54,6 @@ def put_on_bucket(bucket_name: str, object_name: str, data: str) -> bool:
     MINIO_SECRET_KEY = os.getenv("MINIO_SECRET_KEY")
     MINIO_ENDPOINT = os.getenv("MINIO_ENDPOINT", "minio:9000")
 
-    # Determine content type based on file extension
-    ext = Path(object_name).suffix.lower()
-    if ext == ".json":
-        content_type = "application/json"
-    elif ext == ".csv":
-        content_type = "text/csv"
-    elif ext == ".txt":
-        content_type = "text/plain"
-    else:
-        content_type = "application/octet-stream"
-
     try:
         # Connect to MinIO server
         logging.info("Connecting to MinIO...")
@@ -91,8 +80,8 @@ def put_on_bucket(bucket_name: str, object_name: str, data: str) -> bool:
             bucket_name,
             object_name,
             data=data_stream,
-            length=len(data.encode("utf-8")),
-            content_type=content_type,
+            length=len(data),
+            content_type="application/json",
         )
 
         logging.info(f"Successfully uploaded {object_name} (etag: {result.etag})")
