@@ -3,9 +3,7 @@ import json
 import logging
 from minio import Minio
 from airflow.providers.postgres.hooks.postgres import PostgresHook
-from io import BytesIO
 from dotenv import load_dotenv
-from typing import Any
 
 # Load environment variables from .env file
 load_dotenv()

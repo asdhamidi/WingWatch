@@ -1,7 +1,7 @@
 from airflow import DAG
 from datetime import datetime
 from utilities.abc import start_batch_run, start_job_run, end_job_run, end_batch_run
-from utilities.ingestion import ingest_data
+from dags.utilities.minio_ingestion import ingest_data
 from airflow.operators.python import PythonOperator
 
 default_args = {

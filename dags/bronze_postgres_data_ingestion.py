@@ -1,6 +1,5 @@
 from airflow import DAG
 from datetime import datetime
-from functools import partial
 from utilities.abc import start_batch_run, start_job_run, end_job_run, end_batch_run
 from utilities.postgres_ingestion import minio_to_postgres
 from airflow.operators.python import PythonOperator

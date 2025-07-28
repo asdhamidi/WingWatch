@@ -1,12 +1,11 @@
 import os
 import csv
-import requests
 import logging
+import requests
 from json import dumps
 from io import StringIO
-from datetime import datetime
 from dotenv import load_dotenv
-from typing import Any, Dict, List
+from typing import List
 
 # Load environment variables from .env file
 load_dotenv()
