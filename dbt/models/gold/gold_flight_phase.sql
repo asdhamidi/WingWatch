@@ -14,6 +14,7 @@ WITH FLIGHT_PHASE AS (
     FROM silver.silver_flights
     WHERE baro_altitude IS NOT NULL
       AND vertical_rate IS NOT NULL
+      AND created_at = (SELECT MAX(created_at) FROM {{ source('silver', 'silver_flights') }})
 )
 
 SELECT

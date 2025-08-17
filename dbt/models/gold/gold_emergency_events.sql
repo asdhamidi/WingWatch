@@ -13,6 +13,7 @@ WITH emergencies AS (
         END AS emergency_type
     FROM {{ source('silver', 'silver_flights') }}
     WHERE squawk IN ('7500', '7600', '7700')
+    AND created_at = (SELECT MAX(created_at) FROM {{ source('silver', 'silver_flights') }})
 )
 
 SELECT

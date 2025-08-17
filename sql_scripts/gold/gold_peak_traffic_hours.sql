@@ -1,0 +1,7 @@
+DROP TABLE IF EXISTS GOLD.GOLD_PEAK_TRAFFIC_HOURS;
+CREATE TABLE GOLD.GOLD_PEAK_TRAFFIC_HOURS (
+    airline_name VARCHAR(255),
+    hour INT,
+    flight_count INT,
+    rank INT
+)

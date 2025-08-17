@@ -42,6 +42,17 @@ with DAG(
         on_failure_callback=end_job_run
     )
 
+    dbt_run_gold_peak_traffic_hours = BashOperator(
+        task_id='dbt_run_gold_peak_traffic_hours',
+        bash_command=(
+            'cd /usr/app/dbt && '
+            'dbt run --select gold.gold_peak_traffic_hours'
+        ),
+        pre_execute=start_job_run,
+        on_success_callback=end_job_run,
+        on_failure_callback=end_job_run
+    )
+
     dbt_run_gold_emergency_events = BashOperator(
         task_id='dbt_run_gold_emergency_events',
         bash_command=(

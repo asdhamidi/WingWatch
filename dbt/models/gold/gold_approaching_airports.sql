@@ -18,6 +18,7 @@ FROM
 		AND 6371 * 2 * ASIN(SQRT(POWER(SIN(RADIANS(ap.latitude_deg - f.latitude)/2), 2) + COS(RADIANS(f.latitude)) * COS(RADIANS(ap.latitude_deg)) * POWER(SIN(RADIANS(ap.longitude_deg - f.longitude)/2), 2))) <= 50
 WHERE
 	ap.type IN ('large_airport','medium_airport')
+	AND f.created_at = (SELECT MAX(created_at) FROM {{ source('silver', 'silver_flights') }} f2 )
 	AND f.on_ground IS FALSE
 	AND ((f.vertical_rate < 0
 	AND 6371 * 2 * ASIN(SQRT(POWER(SIN(RADIANS(ap.latitude_deg - f.latitude)/2), 2) + COS(RADIANS(f.latitude)) * COS(RADIANS(ap.latitude_deg)) * POWER(SIN(RADIANS(ap.longitude_deg - f.longitude)/2), 2))) <= 30))
