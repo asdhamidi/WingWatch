@@ -1,7 +1,12 @@
 **CAUTION: Work In Progress**
 
 # 🛫 WingWatch: Real-Time Flight Data Pipeline
-![Medallion Architecture](https://img.shields.io/badge/architecture-medallion%20(bronze%2C%20silver%2Cized](https://img.shields.io/badge/deployment-docker](https://img.shields.io/badge/orchestration-airflowimg.shields.io/badge/transgres](https://img.shields.io/badge/warehouse-postgres://img.shields.io/badge/raw 🧠 Aviation. Ingested. Modeled. Analyzed.
+![Medallion Architecture](<https://img.shields.io/badge/architecture-medallion%20(bronze%2C%20silver%2C%20gold)-blue>)
+![Dockerized](https://img.shields.io/badge/deployment-dockerized-important)
+![Airflow](https://img.shields.io/badge/orchestration-airflow-success)
+![PySpark](https://img.shields.io/badge/processing-dbt-orange)
+
+🧠 Aviation. Ingested. Modeled. Analyzed.
 **WingWatch** is a **real-time aviation analytics platform** that ingests **OpenSky flight telemetry, airports, airlines, cities, and weather data** and transforms it into business-ready insights.
 
 It’s a **data engineering playground** designed around the **medallion architecture** (Bronze → Silver → Gold), where raw chaos from APIs & CSVs becomes structured, validated, and transformed aviation intelligence.
@@ -29,7 +34,6 @@ Think of it as **turning the sky into data-driven dashboards** ✨.
 | **Transformations** | dbt-core + dbt-postgres           | SQL-based transformation & modeling |
 | **Raw Storage**   | MinIO                               | Object storage for APIs & datasets  |
 | **Warehouse**     | PostgreSQL 13                       | Bronze, Silver, Gold data schemas   |
-| **Admin UI**      | pgAdmin                             | PostgreSQL GUI client               |
 | **Deployment**    | Docker Compose                      | Multi-container orchestration       |
 | **Data APIs**     | OpenSky, OpenWeather, Airlines DB   | External aviation datasets          |
 
@@ -134,7 +138,6 @@ docker-compose up -d --build
 |-----------|----------------------------------|---------------|
 | Airflow   | [http://localhost:8080](http://localhost:8080) | `airflow / airflow` |
 | MinIO     | [http://localhost:9001](http://localhost:9001) | from `.env` |
-| pgAdmin   | [http://localhost:5050](http://localhost:5050) | from `.env` |
 | Postgres  | `localhost:5432`                 | from `.env`   |
 
 ***
@@ -150,10 +153,7 @@ docker-compose up -d --build
 
 ## 🛤 Roadmap
 
-- [ ] Add **real-time streaming ingestion** (Kafka → MinIO → Postgres).
-- [ ] Build **Superset/Metabase dashboards** on Gold layer.
-- [ ] Expand to **weather-integrated flight risk analysis**.
-- [ ] Implement **alerts & notifications** (Slack/Email) for DQ failures or emergencies.
+- [ ] Build **Grafana dashboards** on Gold layer.
 
 ***
 
@@ -170,3 +170,4 @@ WingWatch demonstrates how **real aviation data** can be **transformed into live
 - Observability (DQ checks + admin logs)
 
 This isn’t simulation. **It’s the sky, modeled and analyzed.** 🌍✈️
+
