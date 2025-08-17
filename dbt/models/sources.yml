@@ -1,0 +1,42 @@
+version: 2
+
+sources:
+  - name: bronze
+    schema: bronze
+    description: "Raw data ingested from external aviation data sources."
+    tables:
+      - name: bronze_airlines
+        description: "Raw airline data as ingested."
+      - name: bronze_airports
+        description: "Raw airports reference data."
+      - name: bronze_cities
+        description: "Reference city dataset."
+      - name: bronze_flights
+        description: "Raw flight tracking data, updated frequently."
+
+  - name: silver
+    schema: silver
+    description: "Refined data ingested from external aviation data sources."
+    tables:
+      - name: silver_airlines
+        description: "Refined airline data as ingested."
+      - name: silver_airports
+        description: "Refined airports reference data."
+      - name: silver_cities
+        description: "Reference city dataset."
+      - name: silver_flights
+        description: "Refined flight tracking data, updated frequently."
+
+
+  - name: admin
+    schema: admin
+    description: "Administrative and metadata tables."
+    tables:
+      - name: admin_batch_runs
+        description: "Logs of batch job runs."
+      - name: admin_dq_checks
+        description: "Definitions of data quality checks."
+      - name: admin_dq_results
+        description: "Results of data quality checks."
+      - name: admin_job_runs
+        description: "Administrative job run histories."

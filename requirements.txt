@@ -1,3 +1,6 @@
 apache-airflow==2.10.0
-pymongo==4.3.3
 minio==7.1.14
+dbt-core==1.7.9
+dbt-postgres==1.7.9
+opentelemetry-proto==1.26.0
+protobuf==4.25.3

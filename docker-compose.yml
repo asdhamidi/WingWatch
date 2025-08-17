@@ -3,7 +3,7 @@ x-airflow-common: &airflow-common
   build:
     context: .
     dockerfile: Dockerfile.airflow
-  env_file: .env 
+  env_file: .env
   environment: &airflow-common-env
     AIRFLOW__CORE__EXECUTOR: LocalExecutor
     AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres/${POSTGRES_DB}
@@ -18,11 +18,12 @@ x-airflow-common: &airflow-common
     AIRFLOW_CONN_HISAAB_POSTGRES: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
     _PIP_ADDITIONAL_REQUIREMENTS: "minio"
   volumes:
-    - ${AIRFLOW_PROJ_DIR:-.}/dags:/opt/airflow/dags
-    - ${AIRFLOW_PROJ_DIR:-.}/logs:/opt/airflow/logs
-    - ${AIRFLOW_PROJ_DIR:-.}/config:/opt/airflow/config
-    - ${AIRFLOW_PROJ_DIR:-.}/plugins:/opt/airflow/plugins
-    - ${AIRFLOW_PROJ_DIR:-.}/sql_scripts:/opt/airflow/sql_scripts
+    - ./dbt:/usr/app/dbt
+    - ./dags:/opt/airflow/dags
+    - ./logs:/opt/airflow/logs
+    - ./config:/opt/airflow/config
+    - ./plugins:/opt/airflow/plugins
+    - ./sql_scripts:/opt/airflow/sql_scripts
   user: "${AIRFLOW_UID:-50000}:0"
   depends_on: &airflow-common-depends-on
     redis:
@@ -153,7 +154,7 @@ services:
     volumes:
       - redis_data:/data
     restart: always
-    
+
   postgres:
     image: postgres:13
     env_file: .env
@@ -174,7 +175,7 @@ services:
       timeout: 5s
       retries: 5
     restart: always
-    
+
   minio:
     image: minio/minio
     env_file: .env

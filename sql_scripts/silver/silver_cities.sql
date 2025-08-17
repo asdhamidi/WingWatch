@@ -1,5 +1,5 @@
-DROP TABLE IF EXISTS BRONZE.BRONZE_CITIES;
-CREATE TABLE BRONZE.BRONZE_CITIES (
+DROP TABLE IF EXISTS SILVER.SILVER_CITIES;
+CREATE TABLE SILVER.SILVER_CITIES (
     id              BIGINT,
     name            VARCHAR(255),
     state_id        BIGINT,
@@ -10,6 +10,7 @@ CREATE TABLE BRONZE.BRONZE_CITIES (
     country_name    VARCHAR(255),
     latitude        DOUBLE PRECISION,
     longitude       DOUBLE PRECISION,
-    timezone      VARCHAR(32),
-    wikiDataId      VARCHAR(32)
+    wikiDataId      VARCHAR(32),
+   	created_at TIMESTAMPTZ,
+	created_by VARCHAR(25)
 )
