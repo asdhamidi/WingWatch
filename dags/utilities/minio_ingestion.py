@@ -7,7 +7,7 @@ from minio import Minio
 from dotenv import load_dotenv
 
 sys.path.append(str(Path(__file__).parent))
-from dags.utilities.api_ingestion import ( fetch_airlines_data, fetch_airports_data, fetch_cities_data, fetch_opensky_data, fetch_weather_data)
+from api_ingestion import ( fetch_airlines_data, fetch_airports_data, fetch_cities_data, fetch_opensky_data, fetch_weather_data)
 
 # Load environment variables from .env file
 load_dotenv()

@@ -10,8 +10,6 @@ from typing import List
 # Load environment variables from .env file
 load_dotenv()
 
-OPENSKY_BASE_URL = "https://opensky-network.org/api"
-
 def fetch_opensky_data(bbox: List[float]=[]) -> str:
     """
     Fetches live flight data from OpenSky Network API.
@@ -26,6 +24,7 @@ def fetch_opensky_data(bbox: List[float]=[]) -> str:
         Exception: If request fails.
     """
     try:
+        URL = "https://opensky-network.org/api/states/all"
         # Prepare bounding box parameters if provided
         params = (
             {"lamin": bbox[0], "lomin": bbox[1], "lamax": bbox[2], "lomax": bbox[3]}
@@ -33,7 +32,6 @@ def fetch_opensky_data(bbox: List[float]=[]) -> str:
             else {}
         )
         logging.info("Fetching OpenSky data...")
-        URL = f"{OPENSKY_BASE_URL}/states/all"
         response = requests.get(URL, params=params, timeout=10)
         response.raise_for_status()
         logging.info("OpenSky data fetched successfully.")
@@ -141,7 +139,7 @@ def fetch_cities_data() -> str:
     """
     try:
         logging.info("Fetching cities data...")
-        URL = "https://raw.githubusercontent.com/dr5hn/countries-states-cities-database/refs/heads/master/json/cities.json"
+        URL = "https://raw.githubusercontent.com/asdhamidi/countries-states-cities-database/refs/heads/master/json/cities.json"
         response = requests.get(URL)
         response.raise_for_status()
         logging.info("Cities data fetched successfully.")

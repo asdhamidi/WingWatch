@@ -1,7 +1,7 @@
 from airflow import DAG
 from datetime import datetime
 from utilities.abc import start_batch_run, start_job_run, end_job_run, end_batch_run
-from dags.utilities.minio_ingestion import ingest_data
+from utilities.minio_ingestion import ingest_data
 from airflow.operators.python import PythonOperator
 
 default_args = {
@@ -13,7 +13,7 @@ with DAG(
     default_args=default_args,
     start_date=datetime(2025, 1, 1),
     schedule="@hourly",
-    tags=["minio", "ingestion"],
+    tags=["minio", "ingestion", "api"],
     catchup=False,
 ) as dag:
     start_batch=PythonOperator(
