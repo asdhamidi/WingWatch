@@ -9,7 +9,7 @@ default_args = {
 }
 
 with DAG(
-    "silver_denorm",
+    "silver_postgres_deployment",
     default_args=default_args,
     start_date=datetime(2025, 1, 1),
     catchup=False,

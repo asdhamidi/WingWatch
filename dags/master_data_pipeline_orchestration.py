@@ -46,7 +46,7 @@ with DAG(
         task_id='trigger_silver_postgres_deployment',
         trigger_dag_id='silver_postgres_deployment',
         wait_for_completion=True,
-        poke_interval=30,
+        poke_interval=5,
         execution_date='{{ ds }}',
         reset_dag_run=True,
     )
@@ -61,5 +61,23 @@ with DAG(
         reset_dag_run=True,
     )
 
+    trigger_gold_biz_intel = TriggerDagRunOperator(
+        task_id='trigger_gold_biz_intel',
+        trigger_dag_id='gold_biz_intel',
+        wait_for_completion=True,
+        poke_interval=30,
+        execution_date='{{ ds }}',
+        reset_dag_run=True,
+    )
+
+    trigger_gold_airspace_analytics = TriggerDagRunOperator(
+        task_id='trigger_gold_airspace_analytics',
+        trigger_dag_id='gold_airspace_analytics',
+        wait_for_completion=True,
+        poke_interval=30,
+        execution_date='{{ ds }}',
+        reset_dag_run=True,
+    )
+
     # Set up the dependencies
-    trigger_raw_ingestion >> trigger_bronze_ingestion >> trigger_silver_deployment >> trigger_gold_processing
+    trigger_raw_ingestion >> trigger_bronze_ingestion >> trigger_silver_deployment >> [trigger_gold_processing, trigger_gold_biz_intel, trigger_gold_airspace_analytics]

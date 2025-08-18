@@ -1,0 +1,7 @@
+DROP TABLE IF EXISTS GOLD.GOLD_GRID_ANALYSIS;
+CREATE TABLE GOLD.GOLD_GRID_ANALYSIS (
+    lat_band NUMERIC(10, 2),
+    lon_band NUMERIC(10, 2),
+    alt_band NUMERIC(10, 2),
+    traffic_count INT
+)

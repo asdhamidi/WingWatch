@@ -27,6 +27,12 @@ sources:
       - name: silver_flights
         description: "Refined flight tracking data, updated frequently."
 
+  - name: gold
+    schema: gold
+    description: "Analytics ready datasets."
+    tables:
+      - name: gold_airport_arrival_rate
+        description: "Airport, country and airport type wise air traffic."
 
   - name: admin
     schema: admin

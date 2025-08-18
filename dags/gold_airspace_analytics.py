@@ -9,10 +9,10 @@ default_args = {
 }
 
 with DAG(
-    "gold_realtime_flights",
+    "gold_airspace_analytics",
     default_args=default_args,
     start_date=datetime(2025, 1, 1),
-    tags=["aviation", "gold", "realtime_flights"],
+    tags=["aviation", "gold", "airspace_analytics"],
     catchup=False,
     schedule="@hourly"
 ) as dag:
@@ -21,44 +21,33 @@ with DAG(
         python_callable=start_batch_run,
     )
 
-    dbt_run_gold_approaching_airports = BashOperator(
-        task_id='dbt_run_gold_approaching_airports',
+    dbt_run_gold_altitude_band = BashOperator(
+        task_id='dbt_run_gold_altitude_band',
         bash_command=(
             'cd /usr/app/dbt && '
-            'dbt run --select gold.gold_approaching_airports'
+            'dbt run --select gold.gold_altitude_band'
         ),
         pre_execute=start_job_run,
         on_success_callback=end_job_run,
         on_failure_callback=end_job_run
     )
 
-    dbt_run_gold_flight_phase = BashOperator(
-        task_id='dbt_run_gold_flight_phase',
+    dbt_run_gold_grid_analysis = BashOperator(
+        task_id='dbt_run_gold_grid_analysis',
         bash_command=(
             'cd /usr/app/dbt && '
-            'dbt run --select gold.gold_flight_phase'
+            'dbt run --select gold.gold_grid_analysis'
         ),
         pre_execute=start_job_run,
         on_success_callback=end_job_run,
         on_failure_callback=end_job_run
     )
 
-    dbt_run_gold_peak_traffic_hours = BashOperator(
-        task_id='dbt_run_gold_peak_traffic_hours',
+    dbt_run_gold_supersonic_flights = BashOperator(
+        task_id='dbt_run_gold_supersonic_flights',
         bash_command=(
             'cd /usr/app/dbt && '
-            'dbt run --select gold.gold_peak_traffic_hours'
-        ),
-        pre_execute=start_job_run,
-        on_success_callback=end_job_run,
-        on_failure_callback=end_job_run
-    )
-
-    dbt_run_gold_emergency_events = BashOperator(
-        task_id='dbt_run_gold_emergency_events',
-        bash_command=(
-            'cd /usr/app/dbt && '
-            'dbt run --select gold.gold_emergency_events'
+            'dbt run --select gold.gold_supersonic_flights'
         ),
         pre_execute=start_job_run,
         on_success_callback=end_job_run,
@@ -71,8 +60,4 @@ with DAG(
         trigger_rule="all_done"
     )
 
-start_batch >> [
-    dbt_run_gold_approaching_airports,
-    dbt_run_gold_flight_phase,
-    dbt_run_gold_emergency_events,
-    dbt_run_gold_peak_traffic_hours] >> end_batch
+start_batch >> [dbt_run_gold_altitude_band, dbt_run_gold_supersonic_flights, dbt_run_gold_grid_analysis] >> end_batch

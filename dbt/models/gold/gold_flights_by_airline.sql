@@ -6,11 +6,12 @@ WITH FLIGHT_COUNT AS (
     WHERE callsign IS NOT NULL
       AND callsign != ''
       AND on_ground IS FALSE
+      AND created_at = (SELECT MAX(created_at) FROM {{ source('silver', 'silver_flights') }})
 	GROUP BY AIRLINE_SIGN
 )
 
 SELECT
-	AL.AIRLINE_NAME,
+	AL.AIRLINE_NAME AS airline_name     ,
 	F.NUM_OF_FLIGHTS
 FROM FLIGHT_COUNT F JOIN SILVER.SILVER_AIRLINES AL
 ON F.AIRLINE_SIGN=AL.ICAO_CODE
