@@ -1,0 +1,90 @@
+version: 2
+
+models:
+  - name: silver_airports
+    columns:
+      - name: name
+        tests:
+          - not_null
+      - name: iata_code
+        tests:
+          - unique
+          - not_null
+      - name: iso_country
+        tests:
+          - not_null
+      - name: latitude_deg
+        tests:
+          - not_null
+      - name: longitude_deg
+        tests:
+          - not_null
+      - name: elevation_ft
+        tests:
+          - not_null
+      - name: type
+        tests:
+          - not_null
+      - name: scheduled_service
+        tests:
+          - not_null
+
+  - name: silver_airlines
+    columns:
+      - name: airline_name
+        tests:
+          - not_null
+      - name: iata_code
+        tests:
+          - unique
+          - not_null
+      - name: country
+        tests:
+          - not_null
+
+  - name: silver_cities
+    columns:
+      - name: id
+        tests:
+          - unique
+          - not_null
+      - name: name
+        tests:
+          - not_null
+      - name: country_code
+        tests:
+          - not_null
+
+  - name: silver_flights
+    columns:
+      - name: icao24
+        tests:
+          - not_null
+          - unique
+      - name: callsign
+        tests:
+          - not_null
+      - name: longitude
+        tests:
+          - not_null
+      - name: latitude
+        tests:
+          - not_null
+      - name: time_position
+        tests:
+          - not_null
+      - name: baro_altitude
+        tests:
+          - not_null
+      - name: on_ground
+        tests:
+          - not_null
+      - name: velocity
+        tests:
+          - not_null
+      - name: vertical_rate
+        tests:
+          - not_null
+      - name: geo_altitude
+        tests:
+          - not_null

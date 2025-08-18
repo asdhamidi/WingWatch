@@ -1,0 +1,168 @@
+version: 2
+
+models:
+  - name: gold_airport_arrival_rate
+    columns:
+      - name: airport_name
+        tests: [not_null]
+      - name: airport_country
+        tests: [not_null]
+      - name: airport_type
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['large_airport', 'medium_airport', 'small_airport', 'heliport']
+      - name: approaching_flights
+        tests: [not_null]
+      - name: departing_flights
+        tests: [not_null]
+      - name: net_traffic
+        tests: [not_null]
+
+  - name: gold_altitude_band
+    columns:
+      - name: altitude_band
+        tests: [not_null]
+      - name: flight_count
+        tests: [not_null]
+
+  - name: gold_approaching_airports
+    columns:
+      - name: callsign
+        tests: [not_null]
+      - name: airline
+        tests: [not_null]
+      - name: airport_name
+        tests: [not_null]
+      - name: altitude_ft
+        tests: [not_null]
+      - name: speed_knots
+        tests: [not_null]
+      - name: distance_from_airport_km
+        tests: [not_null]
+      - name: bearing_from_airport_deg
+        tests: [not_null]
+      - name: longitude
+        tests: [not_null]
+      - name: latitude
+        tests: [not_null]
+
+  - name: gold_country_traffic
+    columns:
+      - name: airport_country
+        tests: [not_null]
+      - name: airport_type
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['large_airport', 'medium_airport', 'small_airport', 'heliport']
+      - name: avg_net_traffic
+        tests: [not_null]
+      - name: avg_approaching_flights
+        tests: [not_null]
+      - name: avg_departing_flights
+        tests: [not_null]
+
+  - name: gold_emergency_events
+    columns:
+      - name: event_time
+        tests: [not_null]
+      - name: icao24
+        tests: [not_null]
+      - name: callsign
+        tests: [not_null]
+      - name: squawk
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['7500', '7600', '7700']
+      - name: latitude
+        tests: [not_null]
+      - name: longitude
+        tests: [not_null]
+      - name: emergency_type
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['hijack','radio_failure','general_emergency']
+      - name: airline_name
+        tests: [not_null]
+      - name: distance_from_airport_km
+        tests: [not_null]
+
+  - name: gold_flight_phase
+    columns:
+      - name: phase
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['on_ground','takeoff','climb','cruise','descent','final_approach','other']
+      - name: count
+        tests: [not_null]
+      - name: min_altitude
+        tests: [not_null]
+      - name: max_altitude
+        tests: [not_null]
+      - name: avg_vertical_rate
+        tests: [not_null]
+
+  - name: gold_flights_by_airline
+    columns:
+      - name: airline_name
+        tests: [not_null]
+      - name: num_of_flights
+        tests: [not_null]
+
+  - name: gold_grid_analysis
+    columns:
+      - name: lat_band
+        tests: [not_null]
+      - name: lon_band
+        tests: [not_null]
+      - name: alt_band
+        tests: [not_null]
+      - name: traffic_count
+        tests: [not_null]
+
+  - name: gold_peak_traffic_hours
+    columns:
+      - name: airline_name
+        tests: [not_null]
+      - name: hour
+        tests:
+          - not_null
+          - accepted_values: {values: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23]}
+      - name: flight_count
+        tests: [not_null]
+      - name: rank
+        tests: [not_null]
+
+  - name: gold_rare_aircrafts
+    columns:
+      - name: callsign
+        tests: [not_null]
+      - name: origin_country
+        tests: [not_null]
+      - name: baro_altitude
+        tests: [not_null]
+      - name: longitude
+        tests: [not_null]
+      - name: latitude
+        tests: [not_null]
+      - name: velocity
+        tests: [not_null]
+
+  - name: gold_supersonic_flights
+    columns:
+      - name: callsign
+        tests: [not_null]
+      - name: origin_country
+        tests: [not_null]
+      - name: baro_altitude
+        tests: [not_null]
+      - name: longitude
+        tests: [not_null]
+      - name: latitude
+        tests: [not_null]
+      - name: velocity
+        tests: [not_null]

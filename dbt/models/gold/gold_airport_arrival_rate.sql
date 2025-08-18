@@ -21,7 +21,7 @@ WITH APPROACHING_FLIGHTS AS (
     WHERE
         f.vertical_rate < 0
         AND NOT f.on_ground
-    GROUP BY 1, 2, 3, 4
+    GROUP BY 1, 2, 3
 ),
 DEPARTING_FLIGHTS AS (
     SELECT
@@ -35,7 +35,7 @@ DEPARTING_FLIGHTS AS (
     WHERE
         f.vertical_rate > 0
         AND NOT f.on_ground
-    GROUP BY 1, 2, 3, 4
+    GROUP BY 1, 2, 3
 )
 
 SELECT

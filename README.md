@@ -6,50 +6,54 @@
 ![Airflow](https://img.shields.io/badge/orchestration-airflow-success)
 ![PySpark](https://img.shields.io/badge/processing-dbt-orange)
 
-🧠 Aviation. Ingested. Modeled. Analyzed.
-**WingWatch** is a **real-time aviation analytics platform** that ingests **OpenSky flight telemetry, airports, airlines, cities, and weather data** and transforms it into business-ready insights.
 
-It’s a **data engineering playground** designed around the **medallion architecture** (Bronze → Silver → Gold), where raw chaos from APIs & CSVs becomes structured, validated, and transformed aviation intelligence.
+Aviation. Ingested. Modeled. Analyzed.
+**WingWatch** is a **real-time aviation analytics platform** that ingests **OpenSky telemetry, global airports, airlines, cities, and weather feeds** into a modern **data lakehouse pipeline**.
 
-Think of it as **turning the sky into data-driven dashboards** ✨.
+The system follows the **Medallion Architecture** (Bronze → Silver → Gold):
+- **Bronze** – raw JSON/CSV from APIs
+- **Silver** – cleaned, standardized tables
+- **Gold** – analytics/aggregations like approaching flights, emergencies, peak traffic
+
+It’s not mock data. It’s **the sky, transformed for insights** ✨.
 
 ***
 
 ## 🚀 Project Highlights
-
-- 📡 **Real-time ingestion**: Collects live flight positions and airline metadata.
-- 🔁 **End-to-end orchestration**: Airflow DAGs manage ingestion, validation, transformation, and analytics.
-- 🏗️ **Medallion Architecture**: Bronze (raw), Silver (refined), Gold (analytics).
-- 🧪 **Data Quality built-in**: Configurable checks (NULL, UNIQUE, RANGE, DUPLICATES).
-- 📊 **Analytical depth**: Airspace monitoring (approaching flights, emergencies, phases, altitude bands).
-- 🐳 **Production Deployment**: Fully dockerized stack with Airflow, Postgres, MinIO, Redis, pgAdmin.
+- 📡 **Real-time ingestion** of OpenSky and reference datasets
+- 🔁 **End-to-end orchestration** with Apache Airflow
+- 🏗️ **Medallion lakehouse** with Bronze, Silver, and Gold schemas
+- 🧪 **Data Quality checks** (NULL, UNIQUE, DUPLICATE, RANGE) baked in
+- 📊 **Analytical Gold models** (traffic by country, emergencies, altitude bands, rare/supersonic aircrafts)
+- 🐳 **Docker-first deployment** (Airflow, Postgres, MinIO, Redis, pgAdmin in one stack)
 
 ***
 
 ## 🛠️ Tech Stack
 
-| Component         | Technology                          | Role                                |
-| ----------------- | ----------------------------------- | ----------------------------------- |
-| **Orchestration** | Apache Airflow 2.10.0               | DAG scheduling & monitoring          |
-| **Transformations** | dbt-core + dbt-postgres           | SQL-based transformation & modeling |
-| **Raw Storage**   | MinIO                               | Object storage for APIs & datasets  |
-| **Warehouse**     | PostgreSQL 13                       | Bronze, Silver, Gold data schemas   |
-| **Deployment**    | Docker Compose                      | Multi-container orchestration       |
-| **Data APIs**     | OpenSky, OpenWeather, Airlines DB   | External aviation datasets          |
+| Layer              | Technology                        | Role                               |
+|--------------------|-----------------------------------|------------------------------------|
+| **Orchestration**  | Apache Airflow 2.10.0             | DAG scheduling & monitoring        |
+| **Transformations**| dbt-core + dbt-postgres           | SQL-based modeling/business logic  |
+| **Storage**        | MinIO (S3 API Compatible)         | Object storage for raw JSON/CSV    |
+| **Warehouse**      | PostgreSQL 13                     | Bronze, Silver, Gold schemas       |
+| **Deployment**     | Docker Compose                    | Production-ready dev environment   |
+| **Data Sources**   | OpenSky, OurAirports, Weather API | Real-world aviation datasets       |
 
 ***
 
 ## 📊 Data Architecture
 
 ```mermaid
-graph LR
-    A[External APIs: OpenSky, Airlines, Airports, Cities, Weather] -->|Raw JSON/CSV| B[MinIO - Bronze Zone]
-    B --> C{Airflow DAGs}
-    C -->|Ingestion (Python + PostgresHook)| D[PostgreSQL - Bronze Schema]
-    D -->|dbt Silver models| E[PostgreSQL - Silver Schema]
-    E -->|dbt Gold models| F[PostgreSQL - Gold Schema]
-    F --> G[BI/Analytics Dashboards]
-    subgraph Docker Environment
+graph TD
+    A[External APIs: OpenSky, Airlines, Airports, Cities, Weather] -->|Raw JSON/CSV| B[MinIO - Bronze Layer]
+    B --> C[Airflow DAGs: Raw → Bronze]
+    C --> D[Postgres Bronze Schema]
+    D -->|dbt Silver models| E[Postgres Silver Schema]
+    E -->|dbt Gold models| F[Postgres Gold Schemas]
+    F --> G[Dashboards, BI, Alerts]
+
+    subgraph Dockerized Environment
     B
     C
     D
@@ -62,22 +66,22 @@ graph LR
 
 ## 🧱 Medallion Layers
 
-### 1️⃣ **Bronze (Raw Ingestion)**
-- Sources: OpenSky API, Airports DB, Airlines, Cities, Weather.
-- Stored in **MinIO (JSON/CSV)**.
-- Ingested into Postgres `bronze.*` tables via **Airflow DAG → MinIO → Postgres**.
+### 1️⃣ **Bronze (Raw → Staging)**
+- **DAGs**: `raw_minio_data_ingestion.py`, `bronze_postgres_data_ingestion.py`
+- **Data**: Saved in MinIO (JSON) → loaded into Postgres `bronze.*` tables
+- **Tables**: `bronze_airlines`, `bronze_airports`, `bronze_cities`, `bronze_flights`
 
-### 2️⃣ **Silver (Cleaned + Standardized)**
-- dbt models transform Bronze → Silver.
-- Cleans nulls, enforces types, adds metadata.
-- Tables: `silver_airports`, `silver_airlines`, `silver_flights`, `silver_cities`.
+### 2️⃣ **Silver (Refined, Standardized)**
+- **DAG**: `silver_postgres_deployment.py`
+- **Models**: dbt transforms → cleaned schema & datatypes
+- **Tables**: `silver_airports`, `silver_airlines`, `silver_flights`, `silver_cities`
 
-### 3️⃣ **Gold (Analytics + Aggregations)**
-- dbt models aggregate Silver into analytics-ready tables:
-  - ✈️ **Approaching Aircrafts** near airports
-  - 🚨 **Emergency Events** (squawk 7500/7600/7700)
-  - 📈 **Flight Phases** (Takeoff, Climb, Cruise, Descent, Landing)
-  - 🛳️ **Flights by Airline, Supersonic, Rare Aircrafts**
+### 3️⃣ **Gold (Analytics & Aggregations)**
+- Multiple specialized DAGs:
+  - `gold_realtime_flights.py` → approaching flights, phases, emergencies, peak hours
+  - `gold_biz_intel.py` → flights by airline, rare aircrafts, airport arrival rate, traffic by country
+  - `gold_airspace_analytics.py` → altitude bands, supersonic flights, spatial grid analysis
+- **Outputs**: Business & operational insights
 
 ***
 
@@ -85,26 +89,26 @@ graph LR
 
 ```
 .
-├── dags/                  # Airflow DAGs
+├── dags/
 │   ├── raw_minio_data_ingestion.py
 │   ├── bronze_postgres_data_ingestion.py
 │   ├── silver_postgres_deployment.py
 │   ├── gold_realtime_flights.py
+│   ├── gold_biz_intel.py
+│   ├── gold_airspace_analytics.py
 │   ├── master_data_pipeline_orchestration.py
-│   └── utilities/          # Utilities: ingestion, DQ, logging
+│   └── utilities/   # Ingestion, DQ, logging, MinIO ⇄ Postgres
 ├── dbt/
 │   ├── models/
 │   │   ├── silver/*.sql
 │   │   └── gold/*.sql
-│   ├── macros/
-│   ├── profiles.yml
-│   └── dbt_project.yml
-├── sql_scripts/            # Table DDLs (bronze, silver, gold, admin)
-├── scripts/                # Init scripts (create dbs, schemas, minio)
+│   ├── sources.yml
+│   └── profiles.yml
+├── sql_scripts/     # Layered DDLs for bronze, silver, gold, admin
+├── scripts/         # DB/S3 init scripts
 ├── docker-compose.yml
 ├── Dockerfile.airflow
-├── requirements.txt
-└── README.md
+└── requirements.txt
 ```
 
 ***
@@ -112,8 +116,8 @@ graph LR
 ## ⚙️ Getting Started
 
 ### ✅ Prerequisites
-- Docker & Docker Compose
-- `.env` file with credentials:
+- Docker + Docker Compose
+- `.env` file with secrets:
 
 ```ini
 POSTGRES_USER=asad
@@ -122,38 +126,42 @@ POSTGRES_DB=airflow
 MINIO_ROOT_USER=minio_admin
 MINIO_ROOT_PASSWORD=minio_password
 REDIS_PASSWORD=redis_pass
-OPENWEATHER_API_KEY=your_api_key
+OPENWEATHER_API_KEY=your_openweather_api
 ```
 
-### 📥 Installation
+### 📦 Installation
 ```bash
-git clone https://github.com/your-org/avnalytics.git
-cd avnalytics
+git clone https://github.com/your-org/wingwatch.git
+cd wingwatch
 docker-compose up -d --build
 ```
 
 ### 🌐 Service Endpoints
 
-| Service   | URL                              | Credentials   |
-|-----------|----------------------------------|---------------|
-| Airflow   | [http://localhost:8080](http://localhost:8080) | `airflow / airflow` |
-| MinIO     | [http://localhost:9001](http://localhost:9001) | from `.env` |
-| Postgres  | `localhost:5432`                 | from `.env`   |
+| Service      | URL                                | Login                  |
+|--------------|------------------------------------|------------------------|
+| Airflow UI   | http://localhost:8080              | `airflow / airflow`    |
+| MinIO        | http://localhost:9001              | from `.env`            |
+| Postgres     | localhost:5432                     | from `.env`            |
 
 ***
 
 ## 🔍 Sample Insights
 
-- Which flights are **approaching a destination airport now**?
-- Are there planes broadcasting an **emergency squawk**?
-- What percentage of flights are **climbing, cruising, or landing**?
-- Which airlines operate the **most supersonic or rare aircraft types**?
+- 🛬 How many flights are **approaching airports** right now?
+- 🚨 Are there **emergency squawk events**?
+- 📈 Which airlines peak at specific **traffic hours**?
+- 🛳️ Which regions have **highest net air traffic**?
+- ✈️ Which flights are **supersonic or rare aircrafts**?
 
 ***
 
 ## 🛤 Roadmap
 
-- [ ] Build **Grafana dashboards** on Gold layer.
+- [ ] Add **real-time Kafka ingestion** alongside batch
+- [ ] Build **Superset/Grafana BI dashboards**
+- [ ] Enhance **data quality monitoring with alerts**
+- [ ] Cloud deployment (Kubernetes + S3 + RDS)
 
 ***
 
@@ -163,11 +171,10 @@ MIT License
 ***
 
 ## 💡 Why This Matters
-WingWatch demonstrates how **real aviation data** can be **transformed into live insights** using production-grade data engineering principles:
-- Orchestration (Airflow)
-- Storage (MinIO -> Postgres)
-- Transformations (dbt)
-- Observability (DQ checks + admin logs)
+WingWatch is a **portfolio-grade data platform**, showing how to move **real-world, messy aviation data** through a **production-ready medallion pipeline**:
+- Airflow DAG orchestration
+- MinIO raw zone ingestion
+- Postgres warehouse (Bronze/Silver/Gold)
+- dbt transformations & analytics
 
-This isn’t simulation. **It’s the sky, modeled and analyzed.** 🌍✈️
-
+From **live aircraft telemetry to business insights** — in one modern stack. 🌍✈️
