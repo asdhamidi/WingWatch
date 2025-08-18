@@ -14,6 +14,8 @@ WITH APPROACHING_FLIGHTS AS (
         ap.name AS airport,
 		ap.iso_country,
 		ap.type,
+        ap.latitude_deg,
+        ap.longitude_deg,
         COUNT(DISTINCT f.icao24) AS approaching_flights
     FROM {{ source('silver', 'silver_flights') }} f
     JOIN {{ source('silver', 'silver_airports') }} ap ON
@@ -21,13 +23,15 @@ WITH APPROACHING_FLIGHTS AS (
     WHERE
         f.vertical_rate < 0
         AND NOT f.on_ground
-    GROUP BY 1, 2, 3
+    GROUP BY 1, 2, 3, 4, 5
 ),
 DEPARTING_FLIGHTS AS (
     SELECT
         ap.name AS airport,
 		ap.iso_country,
 		ap.type,
+        ap.latitude_deg,
+        ap.longitude_deg,
         COUNT(DISTINCT f.icao24) AS departing_flights
     FROM {{ source('silver', 'silver_flights') }} f
     JOIN {{ source('silver', 'silver_airports') }} ap ON
@@ -35,13 +39,15 @@ DEPARTING_FLIGHTS AS (
     WHERE
         f.vertical_rate > 0
         AND NOT f.on_ground
-    GROUP BY 1, 2, 3
+    GROUP BY 1, 2, 3, 4, 5
 )
 
 SELECT
     A.airport AS airport_name,
     A.iso_country AS airport_country,
     A.type AS airport_type,
+    A.latitude_deg AS airport_latitude,
+    A.longitude_deg AS airport_longitude,
     COALESCE(A.approaching_flights, 0) AS approaching_flights,
     COALESCE(D.departing_flights, 0) AS departing_flights,
     COALESCE(A.approaching_flights, 0) - COALESCE(D.departing_flights, 0) AS net_traffic

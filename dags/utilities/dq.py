@@ -33,9 +33,10 @@ def run_dq_checks(table_schema: str, table_name: str) -> None:
             text=True,
             check=True
         )
-
         if result.returncode != 0:
+            logging.error(f"dbt test output :{result.stdout}")
             raise AirflowException(f"dbt test failed with return code {result.returncode}")
+        logging.info(f"dbt test output: {result.stdout}")
         logging.info("DQ checks completed successfully.")
     except subprocess.CalledProcessError as e:
         logging.error(f"dbt test failed: {e.stderr}")
